@@ -3,6 +3,35 @@
 ArgoCD `Application` definitions for apps deployed to the local OpenShift
 Local (CRC) cluster via GitOps.
 
+## Reaching this cluster's ArgoCD
+
+```bash
+oc get route argocd-server -n argocd -o jsonpath='https://{.spec.host}{"\n"}'
+```
+
+Login is `admin`, password from:
+
+```bash
+oc get secret argocd-cluster -n argocd -o jsonpath='{.data.admin\.password}' | base64 -d
+```
+
+**Gotcha on a freshly-created `ArgoCD` custom resource**: the community
+Argo CD Operator does not create an OpenShift `Route` for the server by
+default (`spec.server.route.enabled` defaults to `false`) — `oc get
+route -n argocd` comes back empty and there's nothing to browse to
+until you explicitly enable it:
+
+```bash
+oc patch argocd argocd -n argocd --type=merge -p '{"spec":{"server":{"route":{"enabled":true}}}}'
+```
+
+Only needed once per `ArgoCD` CR (e.g. after recreating this cluster
+from scratch) — it's not part of `oc apply -f apps/penpot-app.yaml`,
+since that manifest is the ArgoCD **Application** for Penpot, not the
+`ArgoCD` instance itself (the latter isn't managed by this repo at
+all — it's a one-time cluster setup step, same category as installing
+the operator).
+
 ## penpot-app (`apps/penpot-app.yaml`)
 
 Deploys Penpot. Ties together:
