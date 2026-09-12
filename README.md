@@ -12,7 +12,12 @@ Deploys Penpot. Ties together:
 
 via ArgoCD's [multiple sources](https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/)
 feature, auto-synced with pruning and self-heal, into the `penpot`
-namespace.
+namespace. Of the 6 workloads this creates, only 2 carry a PVC —
+`penpot-postgres` and `penpot-minio` (see `release-penpot/README.md`)
+— so `prune: true` deleting/recreating a Deployment here is harmless,
+but never delete the `penpot` namespace itself expecting data to
+survive: that takes the PVCs with it (details in
+[`release-penpot/INSTALL.md`](https://github.com/dragos1993/release-penpot/blob/main/INSTALL.md)).
 
 ### Prerequisites (manual, out-of-band — not managed by this repo)
 
