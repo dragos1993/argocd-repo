@@ -12,6 +12,14 @@ spec:
       targetRevision: main
       path: .
       helm:
+        # Must match the release name used for the direct `helm install`
+        # (see release-penpot/README.md). ArgoCD defaults the Helm release
+        # name to the Application's own name ("penpot-app"), which would
+        # change the rendered app.kubernetes.io/instance selector label on
+        # every Deployment -- and Deployment selectors are immutable, so
+        # ArgoCD would fail to sync against resources created by the CLI
+        # install with a different release name.
+        releaseName: penpot
         valueFiles:
           - $values/values-dev.yaml
     - repoURL: https://github.com/dragos1993/envirenment-penpot.git
