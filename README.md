@@ -26,6 +26,21 @@ namespace.
    plaintext credentials should not live in a git-tracked chart or
    values repo. See `release-penpot/README.md` for the exact
    `oc create secret` command.
+3. **Specific to how ArgoCD happens to be installed on this cluster**
+   (community Argo CD Operator, not something CRC itself requires): its
+   `in-cluster` registration only manages the `argocd` namespace by
+   default (see the `namespaces` field on the `argocd-default-cluster-config`
+   Secret in namespace `argocd`) — anything targeting another namespace
+   fails with `Failed to load live state: namespace "<ns>" for Route
+   "<name>" is not managed`, even though the `default` AppProject itself
+   allows any destination. Opt the `penpot` namespace in by labeling it;
+   the operator updates that Secret's `namespaces` list automatically:
+   ```bash
+   oc label namespace penpot argocd.argoproj.io/managed-by=argocd
+   ```
+   (One-time, per namespace. Confirmed working on this cluster; not
+   needed at all with the OpenShift GitOps operator instead, which
+   manages cluster-wide by default.)
 
 ### Apply
 
